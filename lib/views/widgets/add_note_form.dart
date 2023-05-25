@@ -5,6 +5,7 @@ import 'package:notes_app/models/note_model.dart';
 
 import 'custom_button.dart';
 import 'custom_text_field.dart';
+
 class AddNoteForm extends StatefulWidget {
   const AddNoteForm({
     super.key,
@@ -15,7 +16,6 @@ class AddNoteForm extends StatefulWidget {
 }
 
 class _AddNoteFormState extends State<AddNoteForm> {
-
   final GlobalKey<FormState> formKey = GlobalKey();
   AutovalidateMode autoValidateMode = AutovalidateMode.disabled;
   String? title, subTitle;
@@ -49,18 +49,25 @@ class _AddNoteFormState extends State<AddNoteForm> {
           const SizedBox(
             height: 16,
           ),
-          CustomButton(
-            onTap: (){
-              if(formKey.currentState!.validate()){
-                formKey.currentState!.save();
-                var noteModel = NoteModel(title: title!, subTitle: subTitle!, date: DateTime.now().toString(), color: Colors.blue.value);
-                BlocProvider.of<AddNoteCubit>(context).addNote(noteModel);
-              }else{
-                autoValidateMode = AutovalidateMode.always;
-                setState(() {
-
-                });
-              }
+          BlocBuilder<AddNoteCubit, AddNoteState>(
+            builder: (context, state) {
+              return CustomButton(
+                isLoading: state is AddNoteLoading ? true : false,
+                onTap: () {
+                  if (formKey.currentState!.validate()) {
+                    formKey.currentState!.save();
+                    var noteModel = NoteModel(
+                        title: title!,
+                        subTitle: subTitle!,
+                        date: DateTime.now().toString(),
+                        color: Colors.blue.value);
+                    BlocProvider.of<AddNoteCubit>(context).addNote(noteModel);
+                  } else {
+                    autoValidateMode = AutovalidateMode.always;
+                    setState(() {});
+                  }
+                },
+              );
             },
           ),
           const SizedBox(
